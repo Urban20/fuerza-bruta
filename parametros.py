@@ -1,11 +1,13 @@
 import argparse
 
-arg = argparse.ArgumentParser()
+arg = argparse.ArgumentParser(
+    description= 'herramienta de fuerza bruta: prueba contraseñas a partir de un usuario conocido o por medio de un diccionario proporcionado por el usuario'
+)
 arg.add_argument('-url',type=str)
 arg.add_argument('-c_u',type=str)
-arg.add_argument('-c_p',type=str)
+arg.add_argument('-c_c',type=str)
 arg.add_argument('-u','--usuario',type=str)
-arg.add_argument('-dic_p',type=str)
+arg.add_argument('-dic_c',type=str)
 arg.add_argument('-dic_u',type=str)
 arg.add_argument('-n',type=int)
 
