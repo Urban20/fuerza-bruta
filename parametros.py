@@ -10,5 +10,6 @@ arg.add_argument('-u','--usuario',type=str)
 arg.add_argument('-dic_c',type=str)
 arg.add_argument('-dic_u',type=str)
 arg.add_argument('-n',type=int)
+arg.add_argument('-hl','--hilos',type=int)
 
 param= arg.parse_args()
