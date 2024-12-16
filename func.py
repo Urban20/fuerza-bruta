@@ -9,9 +9,19 @@ init()
 deteniendo = False
 
 def generador(diccionario):
+    
     with open(f'diccionarios/{diccionario}','r') as arch:
-        for linea in arch:
-            yield linea.strip()
+        try:
+            for linea in arch:
+            
+                yield linea.strip()
+        except UnicodeDecodeError:
+            print(Fore.WHITE+f'error en linea: {linea.strip()}')
+            yield None
+        except Exception as e:
+        
+            print(Fore.RED+f'\nocurrio un error al leer el dicionario: {e}')
+            yield 'error'
 
 
 def leer_dic(nombre):
@@ -77,8 +87,10 @@ def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
 
         exit()
     
-  
+    except:
+        pass
+
     finally:
         web.close()
         
-        
+    

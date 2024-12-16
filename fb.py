@@ -6,7 +6,7 @@ from mechanize import HTTPError
 from time import sleep
 
 init()
-#IMPORTANTE: TENGO QUE OPTIMIZAR LAS LISTAS PORQUE CONSUME MUCHA RAM    
+
 
 #http://128.198.49.198:8102/mutillidae/index.php?page=login.php
 
@@ -65,27 +65,28 @@ try:
                
     #no conozco el usuario 
     elif params.param.dic_u != None and params.param.usuario == None:
-        try:
+        
     
-            dic_usuario = func.leer_dic(params.param.dic_u).split()
+        dic_usuario = func.leer_dic(params.param.dic_u).split()
+        
+        print(f'hilos: {hilo}')
+        with ThreadPoolExecutor(max_workers=hilo) as ejec:
+            for usuario  in reversed(sorted(dic_usuario)):
+                
+                dic_contr= func.generador(params.param.dic_c)
+
+                for cont  in dic_contr:
+                    if dic_contr != 'error' and not func.deteniendo:
+                        
+                        ejec.submit(func.fb,url_login=params.param.url,usuario=usuario,c_usuario=c_usuario,c_contr=c_contraseña,contr_=cont,n=n)
+                       
+                    else:
+                        ejec.shutdown(wait=False,cancel_futures=True)
+                        break
+                    
+                dic_usuario.remove(usuario)    
             
-            print(f'hilos: {hilo}')
-            with ThreadPoolExecutor(max_workers=hilo) as ejec:
-                for usuario  in reversed(sorted(dic_usuario)):
-
-                    dic_contr= func.generador(params.param.dic_c)
-
-                    for cont  in dic_contr:
-                        if not func.deteniendo:
-
-                            ejec.submit(func.fb,url_login=params.param.url,usuario=usuario,c_usuario=c_usuario,c_contr=c_contraseña,contr_=cont,n=n)
-                        else:
-                            ejec.shutdown(wait=False,cancel_futures=True)
-                            break
-                    dic_usuario.remove(usuario)    
-        except Exception as e:
-            print(Fore.RED+f'hubo un error: {e}')
-
+                
 except KeyboardInterrupt:
     
     exit()
