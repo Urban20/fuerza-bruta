@@ -10,12 +10,15 @@ deteniendo = False
 
 def leer_dic(nombre):
     try:
-        with open(f'diccionarios/{nombre}','r',encoding='latin-1',errors='ignore') as arch:
-            return arch.read()
+        with open(f'diccionarios/{nombre}','r',encoding='cp1252') as arch:
+            return str(arch.read()).strip()
         
+    except UnicodeDecodeError as e:
+        print(Fore.RED+f'\nerror de decodificacion del diccionario: {e}')
+    
     except Exception as e:
         
-        print(Fore.RED+f'ocurrio un error al leer el dicionario: {e}')
+        print(Fore.RED+f'\nocurrio un error al leer el dicionario: {e}')
 
 def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
     global deteniendo
@@ -67,11 +70,8 @@ def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
         print(Fore.RED+'no se encuentra el formulario o las casillas no conciden')
 
         exit()
+    
   
-    except Exception as e:
-        print(Fore.RED+f'error inesperado: {e}')
-
-        exit()
     finally:
         web.close()
         
