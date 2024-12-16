@@ -56,6 +56,7 @@ try:
 
                     else:
                         ejec.shutdown(wait=False,cancel_futures=True)
+                        break
                 except HTTPError:
                     print(Fore.WHITE+'reconectando...')
                     sleep(1)
@@ -64,27 +65,29 @@ try:
                
     #no conozco el usuario 
     elif params.param.dic_u != None and params.param.usuario == None:
+        try:
     
-        dic_usuario = func.leer_dic(params.param.dic_u)
-        dic_contr = func.leer_dic(params.param.dic_c)
-
-        if dic_usuario != None and dic_contr != None:
-
+            dic_usuario = func.leer_dic(params.param.dic_u).split()
+            
             print(f'hilos: {hilo}')
             with ThreadPoolExecutor(max_workers=hilo) as ejec:
-                for usuario  in dic_usuario.split():
-                    
-                    for cont  in dic_contr.split():
+                for usuario  in reversed(sorted(dic_usuario)):
+
+                    dic_contr= func.generador(params.param.dic_c)
+
+                    for cont  in dic_contr:
                         if not func.deteniendo:
+
                             ejec.submit(func.fb,url_login=params.param.url,usuario=usuario,c_usuario=c_usuario,c_contr=c_contraseña,contr_=cont,n=n)
                         else:
                             ejec.shutdown(wait=False,cancel_futures=True)
-        else:
+                            break
+                    dic_usuario.remove(usuario)    
+        except Exception as e:
+            print(Fore.RED+f'hubo un error: {e}')
 
-            print('hubo un error con los diccionarios')
 except KeyboardInterrupt:
     
     exit()
 
-except:
-    pass
+

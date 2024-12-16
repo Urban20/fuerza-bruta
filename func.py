@@ -8,9 +8,15 @@ init()
 
 deteniendo = False
 
+def generador(diccionario):
+    with open(f'diccionarios/{diccionario}','r') as arch:
+        for linea in arch:
+            yield linea.strip()
+
+
 def leer_dic(nombre):
     try:
-        with open(f'diccionarios/{nombre}','r',encoding='cp1252') as arch:
+        with open(f'diccionarios/{nombre}','r') as arch:
             return str(arch.read()).strip()
         
     except UnicodeDecodeError as e:
