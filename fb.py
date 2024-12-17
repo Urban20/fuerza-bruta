@@ -7,6 +7,7 @@ from time import sleep
 
 init()
 
+#debo mejorar la logica de redireccion de urls
 
 #http://128.198.49.198:8102/mutillidae/index.php?page=login.php
 
