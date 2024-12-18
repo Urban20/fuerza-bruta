@@ -2,12 +2,9 @@ import parametros as params
 import func
 from concurrent.futures import ThreadPoolExecutor
 from colorama import init,Fore
-from mechanize import HTTPError
-from time import sleep
 
 init()
 
-#debo mejorar la logica de redireccion de urls
 
 #http://128.198.49.198:8102/mutillidae/index.php?page=login.php
 
@@ -44,26 +41,24 @@ try:
     #conozco el usuario
     if params.param.usuario != None and params.param.dic_u == None:
         
-        dic_cont= func.leer_dic(params.param.dic_c)
+        lista= func.leer_dic(params.param.dic_c).split()
         
-        lista = dic_cont.split()
         
         with ThreadPoolExecutor(max_workers=hilo) as ejec:
             for cont in reversed(lista):
-                try:
-                    if not func.deteniendo:
-                        ejec.submit(func.fb,url_login=params.param.url,usuario=params.param.usuario,c_usuario=c_usuario,c_contr=c_contraseña,contr_=cont,n=n)
+            
+                if not func.deteniendo:
+                    if not func.esperando:
+                        f =ejec.submit(func.fb,url_login=params.param.url,usuario=params.param.usuario,c_usuario=c_usuario,c_contr=c_contraseña,contr_=cont,n=n)
+                        
                         lista.remove(cont) 
-
                     else:
-                        ejec.shutdown(wait=False,cancel_futures=True)
-                        break
-                except HTTPError:
-                    print(Fore.WHITE+'reconectando...')
-                    sleep(1)
-                    continue
-                
-               
+                        print(Fore.WHITE+f'no se pudo enviar {cont}')
+                        continue
+                else:
+                    ejec.shutdown(wait=False,cancel_futures=True)
+                    break
+       
     #no conozco el usuario 
     elif params.param.dic_u != None and params.param.usuario == None:
         
@@ -86,10 +81,9 @@ try:
                         break
                     
                 dic_usuario.remove(usuario)    
-            
-                
+                          
 except KeyboardInterrupt:
-    
+    func.deteniendo = True
     exit()
 
 

