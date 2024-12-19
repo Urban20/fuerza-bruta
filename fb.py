@@ -2,6 +2,7 @@ import parametros as params
 import func
 from concurrent.futures import ThreadPoolExecutor
 from colorama import init,Fore
+from time import sleep
 
 init()
 
@@ -35,9 +36,14 @@ try:
             hilo = 16
     else:
         hilo = 16
+
+    if params.param.delay != None:
+        d = params.param.delay
+    else:
+        d = 0
     #-------------------------------------
 
-
+    print(f'hilos: {hilo}')
     #conozco el usuario
     if params.param.usuario != None and params.param.dic_u == None:
         
@@ -51,7 +57,8 @@ try:
                     if not func.esperando:
                         f =ejec.submit(func.fb,url_login=params.param.url,usuario=params.param.usuario,c_usuario=c_usuario,c_contr=c_contraseña,contr_=cont,n=n)
                         
-                        lista.remove(cont) 
+                        lista.remove(cont)
+                        sleep(d) 
                     else:
                         print(Fore.WHITE+f'no se pudo enviar {cont}')
                         continue
@@ -65,25 +72,30 @@ try:
     
         dic_usuario = func.leer_dic(params.param.dic_u).split()
         
-        print(f'hilos: {hilo}')
+        
         with ThreadPoolExecutor(max_workers=hilo) as ejec:
+            
             for usuario  in reversed(sorted(dic_usuario)):
                 
-                dic_contr= func.generador(params.param.dic_c)
+                if not func.deteniendo:
+                    dic_contr= func.generador(params.param.dic_c)
 
-                for cont  in dic_contr:
-                    if dic_contr != 'error' and not func.deteniendo:
-                        
-                        ejec.submit(func.fb,url_login=params.param.url,usuario=usuario,c_usuario=c_usuario,c_contr=c_contraseña,contr_=cont,n=n)
-                       
-                    else:
-                        ejec.shutdown(wait=False,cancel_futures=True)
-                        break
+                    for cont  in dic_contr:
+                        if dic_contr != 'error':
+                            
+                            ejec.submit(func.fb,url_login=params.param.url,usuario=usuario,c_usuario=c_usuario,c_contr=c_contraseña,contr_=cont,n=n)
+                            sleep(d)
+                        else:
+                            func.deteniendo = True    
+                else:
+                    ejec.shutdown(wait=False,cancel_futures=True)
+                    break
                     
                 dic_usuario.remove(usuario)    
                           
 except KeyboardInterrupt:
     func.deteniendo = True
     exit()
-
+except AttributeError:
+    pass
 

